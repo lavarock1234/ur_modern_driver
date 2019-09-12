@@ -23,7 +23,7 @@ URScriptHandler::URScriptHandler(URCommander& commander) : commander_(commander)
 {
   LOG_INFO("Initializing ur_driver/URScript subscriber");
   urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1, &URScriptHandler::urscriptInterface, this);
-  LOG_INFO("The ur_driver/URScript initialized");
+  LOG_INFO("Initialized ur_driver/URScript");
 }
 
 void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
