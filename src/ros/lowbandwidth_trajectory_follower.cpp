@@ -319,7 +319,7 @@ bool LowBandwidthTrajectoryFollower::start()
     return false;
   }
 
-  LOG_DEBUG("Robot successfully connected");
+  LOG_INFO("Robot successfully connected");
   return (running_ = true);
 }
 
@@ -371,12 +371,12 @@ bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &traje
   {
     if (!server_.readLine((char *)line, MAX_SERVER_BUF_LEN))
     {
-      LOG_DEBUG("Connection closed. Finishing!");
+      LOG_WARN("Connection closed. Finishing!");
       finished = true;
       break;
     }
     unsigned int message_num = atoi((const char *)line);
-    LOG_DEBUG("Received request %i", message_num);
+    LOG_INFO("Received request %i", message_num);
     if (message_num < trajectory.size())
     {
       res = execute(trajectory[message_num].positions, trajectory[message_num].velocities, message_num,
