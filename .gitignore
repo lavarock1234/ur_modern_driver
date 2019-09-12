@@ -1,7 +1,5 @@
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
-install_manifest.txt
-*~
-.idea
+.idea*/
+Logs/
+__pycache__
+*.pyc
+*__pycache__/
