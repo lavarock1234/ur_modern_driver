@@ -83,6 +83,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
     src/ros/trajectory_follower.cpp
+    src/ros/tracker.cpp
     src/ros/urscript_handler.cpp
     src/tcp_socket.cpp
     src/ur/commander.cpp

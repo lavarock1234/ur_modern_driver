@@ -35,6 +35,7 @@
 #include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ros/trajectory_follower.h"
 #include "ur_modern_driver/ros/urscript_handler.h"
+#include "ur_modern_driver/ros/tracker.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
 #include "ur_modern_driver/ur/messages.h"
@@ -202,6 +203,9 @@ int main(int argc, char **argv)
     rt_vec.push_back(action_server);
     services.push_back(action_server);
   }
+
+  Tracker tracker(*rt_commander);
+  services.push_back(&tracker);
 
   URScriptHandler urscript_handler(*rt_commander);
   services.push_back(&urscript_handler);
