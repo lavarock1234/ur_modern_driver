@@ -48,28 +48,16 @@ void Tracker::point_cb(trajectory_msgs::JointTrajectoryPointConstPtr point) {
                                     point->velocities[5]}};
 
       commander_.speedj(cmd, 10);
-
-      // Create timer to stop if no message receive in 1 sec
-      timer_.stop();
-      timer_ = nh_.createTimer(ros::Duration(1.0), [this](const ros::TimerEvent &) {
-        if (ros::Time::now() - last_track_ > ros::Duration(0.9)) {
-          ROS_INFO("No more track point, stopped tracking!");
-          stop();
-        }
-      }, true);
       break;
     }
     case RobotState::EmergencyStopped:
       LOG_ERROR("Not acting on point callback. Robot is emergency stopped");
-      stop();
       break;
     case RobotState::ProtectiveStopped:
       LOG_ERROR("Not acting on point callback. Robot is protective stopped");
-      stop();
       break;
     case RobotState::Error:
       LOG_ERROR("Not acting on point callback. Robot is not ready, check robot_mode");
-      stop();
       break;
     default:
       LOG_ERROR("Not acting on point callback. Robot is in undefined state");
@@ -80,10 +68,4 @@ void Tracker::point_cb(trajectory_msgs::JointTrajectoryPointConstPtr point) {
 void Tracker::onRobotStateChange(RobotState state)
 {
   state_ = state;
-}
-
-void Tracker::stop()
-{
-  std::array<double, 6> cmd{{0, 0, 0, 0, 0, 0}};
-  commander_.speedj(cmd, 10);
 }
