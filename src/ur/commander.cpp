@@ -164,7 +164,7 @@ bool URCommander_V3_3::speedj(std::array<double, 6> &speeds, double acceleration
   out << std::fixed << std::setprecision(5);
   out << "speedj(";
   formatArray(out, speeds);
-  out << "," << acceleration << "," << 0.008 << ")\n";
+  out << "," << acceleration << "," << 0.15 << ")\n";
   std::string s(out.str());
   return write(s);
 }
