@@ -49,4 +49,5 @@ public:
   virtual bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt) = 0;
   virtual void stop() = 0;
   virtual ~ActionTrajectoryFollowerInterface(){};
+  std::string current_gh_id;
 };

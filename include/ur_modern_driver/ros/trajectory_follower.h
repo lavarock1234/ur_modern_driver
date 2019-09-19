@@ -36,6 +36,8 @@
 class TrajectoryFollower : public ActionTrajectoryFollowerInterface
 {
 private:
+  ros::NodeHandle nh_;
+  ros::Publisher status_pub_;
   std::atomic<bool> running_;
   std::array<double, 6> last_positions_;
   URCommander &commander_;

@@ -333,6 +333,8 @@ void ActionServer::trajectoryThread()
     LOG_INFO("Attempting to start follower %p", &follower_);
     if (follower_.start())
     {
+      follower_.current_gh_id = curr_gh_.getGoalID().id;
+
       if (follower_.execute(trajectory, interrupt_traj_))
       {
         // interrupted goals must be handled by interrupt trigger

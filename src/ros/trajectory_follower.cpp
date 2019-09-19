@@ -19,6 +19,7 @@
 #include "ur_modern_driver/ros/trajectory_follower.h"
 #include <endian.h>
 #include <ros/ros.h>
+#include <ur_msgs/TrajectoryFeedback.h>
 #include <cmath>
 
 static const int32_t MULT_JOINTSTATE_ = 1000000;
@@ -95,6 +96,8 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   ros::param::get("~servoj_time", servoj_time_);
   ros::param::get("~servoj_lookahead_time", servoj_lookahead_time_);
   ros::param::get("~servoj_gain", servoj_gain_);
+
+  status_pub_ = nh_.advertise<ur_msgs::TrajectoryFeedback>("ur_driver/tracking_status", 20);
 
   std::string res(POSITION_PROGRAM);
   res.replace(res.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
@@ -201,8 +204,17 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
 
   std::array<double, 6> positions;
 
+  uint32_t idx = 0;
   for (auto const &point : trajectory)
   {
+    // Update current tracking status
+    idx++;
+    ur_msgs::TrajectoryFeedback status_msg;
+    status_msg.header.stamp = ros::Time::now();
+    status_msg.current_idx = idx;
+    status_msg.goal_id = current_gh_id;
+    status_pub_.publish(status_msg);
+
     // skip t0
     if (&point == &prev)
       continue;
