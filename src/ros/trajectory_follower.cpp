@@ -207,17 +207,18 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
   uint32_t idx = 0;
   for (auto const &point : trajectory)
   {
+    // skip t0
+    if (&point == &prev)
+      continue;
+
+    // Skip first point as it's added by this driver
     // Update current tracking status
-    idx++;
     ur_msgs::TrajectoryFeedback status_msg;
     status_msg.header.stamp = ros::Time::now();
     status_msg.current_idx = idx;
     status_msg.goal_id = current_gh_id;
     status_pub_.publish(status_msg);
-
-    // skip t0
-    if (&point == &prev)
-      continue;
+    idx++;
 
     if (interrupt)
       break;
