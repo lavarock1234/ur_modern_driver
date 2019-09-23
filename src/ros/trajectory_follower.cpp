@@ -254,6 +254,10 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
     prev = point;
   }
 
+  if (interrupt) {
+    return true;
+  }
+
   // In theory it's possible the last position won't be sent by
   // the interpolation loop above but rather some position between
   // t[N-1] and t[N] where N is the number of trajectory points.
