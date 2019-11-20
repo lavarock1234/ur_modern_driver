@@ -186,7 +186,7 @@ bool TrajectoryFollower::execute(std::array<double, 6> &positions)
   return execute(positions, true);
 }
 
-bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
+bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused)
 {
   if (!running_)
     return false;
@@ -213,6 +213,10 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
 
     if (interrupt)
       break;
+
+    while (paused) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
 
     auto duration = point.time_from_start - prev.time_from_start;
     double d_s = duration_cast<double_seconds>(duration).count();

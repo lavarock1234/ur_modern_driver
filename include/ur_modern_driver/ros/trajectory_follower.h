@@ -62,7 +62,7 @@ public:
 
   bool start();
   bool execute(std::array<double, 6> &positions);
-  bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt);
+  bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused);
   void stop();
 
   virtual ~TrajectoryFollower(){};

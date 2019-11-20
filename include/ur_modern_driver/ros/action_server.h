@@ -30,6 +30,7 @@
 #include <mutex>
 #include <set>
 #include <thread>
+#include <std_srvs/Trigger.h>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ros/trajectory_follower.h"
@@ -47,6 +48,7 @@ private:
 
   ros::NodeHandle nh_;
   Server as_;
+  ros::ServiceServer pause_service_;
 
   std::vector<std::string> joint_names_;
   std::set<std::string> joint_set_;
@@ -54,6 +56,7 @@ private:
 
   GoalHandle curr_gh_;
   std::atomic<bool> interrupt_traj_;
+  std::atomic<bool> pause_traj_;
   std::atomic<bool> has_goal_, running_;
   std::mutex tj_mutex_;
   std::condition_variable tj_cv_;
@@ -66,6 +69,7 @@ private:
 
   void onGoal(GoalHandle gh);
   void onCancel(GoalHandle gh);
+  bool onPause(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& resp);
 
   bool validate(GoalHandle& gh, Result& res);
   bool validateState(GoalHandle& gh, Result& res);

@@ -18,8 +18,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/action_server.h"
 #include <cmath>
+#include "ur_modern_driver/ros/action_server.h"
 
 ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names,
                            double max_velocity)
@@ -29,11 +29,13 @@ ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vec
   , joint_set_(joint_names.begin(), joint_names.end())
   , max_velocity_(max_velocity)
   , interrupt_traj_(false)
+  , pause_traj_(false)
   , has_goal_(false)
   , running_(false)
   , follower_(follower)
   , state_(RobotState::Error)
 {
+  pause_service_ = nh_.advertiseService("/ur_driver/pause_program", &ActionServer::onPause, this);
 }
 
 void ActionServer::start()
@@ -254,6 +256,7 @@ bool ActionServer::try_execute(GoalHandle& gh, Result& res)
   // locked here
   curr_gh_ = gh;
   interrupt_traj_ = false;
+  pause_traj_ = false;
   has_goal_ = true;
   tj_mutex_.unlock();
   tj_cv_.notify_one();
@@ -335,7 +338,7 @@ void ActionServer::trajectoryThread()
     {
       follower_.current_gh_id = curr_gh_.getGoalID().id;
 
-      if (follower_.execute(trajectory, interrupt_traj_))
+      if (follower_.execute(trajectory, interrupt_traj_, pause_traj_))
       {
         // interrupted goals must be handled by interrupt trigger
         if (!interrupt_traj_)
@@ -368,4 +371,9 @@ void ActionServer::trajectoryThread()
     has_goal_ = false;
     lk.unlock();
   }
+}
+
+bool ActionServer::onPause(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &resp) {
+  pause_traj_ = !pause_traj_;
+  return true;
 }

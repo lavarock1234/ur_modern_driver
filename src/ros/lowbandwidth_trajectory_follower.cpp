@@ -356,7 +356,7 @@ bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6> &positi
   return server_.write(buf, strlen(formatted_message) + 1, written);
 }
 
-bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
+bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused)
 {
   if (!running_)
     return false;
@@ -369,6 +369,10 @@ bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &traje
 
   while (!finished && !interrupt)
   {
+    while (paused) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
+
     if (!server_.readLine((char *)line, MAX_SERVER_BUF_LEN))
     {
       LOG_WARN("Connection closed. Finishing!");

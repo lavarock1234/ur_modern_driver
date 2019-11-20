@@ -49,7 +49,7 @@ public:
   LowBandwidthTrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
 
   bool start();
-  bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt);
+  bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused);
   void stop();
 
   virtual ~LowBandwidthTrajectoryFollower(){};
