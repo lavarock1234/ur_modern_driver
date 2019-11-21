@@ -370,7 +370,11 @@ bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &traje
   while (!finished && !interrupt)
   {
     while (paused) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      if (interrupt) {
+        break;
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      }
     }
 
     if (!server_.readLine((char *)line, MAX_SERVER_BUF_LEN))
