@@ -374,6 +374,8 @@ void ActionServer::trajectoryThread()
 }
 
 bool ActionServer::onPause(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &resp) {
+  ROS_INFO("Setting pause state %d -> %d", (bool) pause_traj_, (bool) !pause_traj_);
   pause_traj_ = !pause_traj_;
+  resp.success = true;
   return true;
 }
