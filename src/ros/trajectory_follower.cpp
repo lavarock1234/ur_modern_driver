@@ -144,7 +144,7 @@ bool TrajectoryFollower::start()
   return (running_ = true);
 }
 
-bool TrajectoryFollower::execute(std::array<double, 6> &positions, bool keep_alive)
+bool TrajectoryFollower::execute(const std::array<double, 6> &positions, bool keep_alive)
 {
   if (!running_)
     return false;
@@ -215,35 +215,46 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
       break;
 
     while (paused) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      if (interrupt) {
+        break;
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      }
     }
 
     auto duration = point.time_from_start - prev.time_from_start;
     double d_s = duration_cast<double_seconds>(duration).count();
 
     // interpolation loop
+    double t = 0;
     while (!interrupt)
     {
-      latest = Clock::now();
-      auto elapsed = latest - t0;
+      while (paused) {
+        if (interrupt) {
+          break;
+        } else {
+          std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        }
+      }
 
-      if (point.time_from_start <= elapsed)
-        break;
-
-      if (last.time_from_start <= elapsed)
-        return true;
-
-      double elapsed_s = duration_cast<double_seconds>(elapsed - prev.time_from_start).count();
-      for (size_t j = 0; j < positions.size(); j++)
-      {
-        positions[j] =
-            interpolate(elapsed_s, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
+      for (size_t j = 0; j < positions.size(); j++) {
+          positions[j] =
+            interpolate(t, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
       }
 
       if (!execute(positions, true))
         return false;
 
+      Time servoj_time = Clock::now();
       std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
+      t += duration_cast<double_seconds>(Clock::now() - servoj_time).count();
+      if(t > d_s) {
+          if (!execute(point.positions, true)) {
+              return false;
+          } else {
+              break;
+          }
+      }
     }
 
     prev = point;

@@ -54,7 +54,7 @@ private:
     return s;
   }
 
-  bool execute(std::array<double, 6> &positions, bool keep_alive);
+  bool execute(const std::array<double, 6> &positions, bool keep_alive);
   double interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel);
 
 public:
