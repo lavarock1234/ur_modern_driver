@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "ur_modern_driver/ros/trajectory_follower.h"
 #include <endian.h>
 #include <ros/ros.h>
@@ -276,7 +275,8 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
   // the interpolation loop above but rather some position between
   // t[N-1] and t[N] where N is the number of trajectory points.
   // To make sure this does not happen the last position is sent
-  return execute(last.positions, true);
+  //return execute(last.positions, true);
+  return true;
 }
 
 void TrajectoryFollower::stop()
