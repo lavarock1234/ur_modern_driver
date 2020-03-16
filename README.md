@@ -143,9 +143,9 @@ controller_list:
    type: FollowJointTrajectory
    default: true
    joints:
-      - shoulder_pan_joint
+      - shoulder_base_joint
       - shoulder_lift_joint
-      - elbow_joint
+      - shoulder_middle_joint
       - wrist_1_joint
       - wrist_2_joint
       - wrist_3_joint

@@ -57,7 +57,7 @@ static const std::string TCP_LINK_ARG("~tcp_link");
 static const std::string JOINT_NAMES_PARAM("hardware_interface/joints");
 static const std::string SHUTDOWN_ON_DISCONNECT_ARG("~shutdown_on_disconnect");
 
-static const std::vector<std::string> DEFAULT_JOINTS = { "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
+static const std::vector<std::string> DEFAULT_JOINTS = { "shoulder_base_joint", "shoulder_lift_joint", "shoulder_middle_joint",
                                                          "wrist_1_joint",      "wrist_2_joint",       "wrist_3_joint" };
 
 static const int UR_SECONDARY_PORT = 30002;

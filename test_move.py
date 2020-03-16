@@ -23,7 +23,7 @@ from trajectory_msgs.msg import *
 from sensor_msgs.msg import JointState
 from math import pi
 
-JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
+JOINT_NAMES = ['shoulder_base_joint', 'shoulder_lift_joint', 'shoulder_middle_joint',
                'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 Q1 = [2.2,0,-1.57,0,0,0]
 Q2 = [1.5,0,-1.57,0,0,0]
