@@ -158,8 +158,7 @@ bool ActionServer::validateState(GoalHandle& gh, Result& res)
   }
 }
 
-bool ActionServer::validateJoints(GoalHandle& gh, Result& res)
-{
+bool ActionServer::validateJoints(GoalHandle& gh, Result& res) {
   auto goal = gh.getGoal();
   auto const& joints = goal->trajectory.joint_names;
   std::set<std::string> goal_joints(joints.begin(), joints.end());
@@ -263,14 +262,11 @@ bool ActionServer::try_execute(GoalHandle& gh, Result& res)
   return true;
 }
 
-std::vector<size_t> ActionServer::reorderMap(std::vector<std::string> goal_joints)
-{
+std::vector<size_t> ActionServer::reorderMap(std::vector<std::string> goal_joints) {
   std::vector<size_t> indecies;
-  for (auto const& aj : joint_names_)
-  {
+  for (auto const& aj : joint_names_) {
     size_t j = 0;
-    for (auto const& gj : goal_joints)
-    {
+    for (auto const& gj : goal_joints) {
       if (aj == gj)
         break;
       j++;
@@ -280,12 +276,10 @@ std::vector<size_t> ActionServer::reorderMap(std::vector<std::string> goal_joint
   return indecies;
 }
 
-void ActionServer::trajectoryThread()
-{
+void ActionServer::trajectoryThread() {
   LOG_INFO("Trajectory thread started");
 
-  while (running_)
-  {
+  while (running_) {
     std::unique_lock<std::mutex> lk(tj_mutex_);
     if (!tj_cv_.wait_for(lk, std::chrono::milliseconds(100), [&] { return running_ && has_goal_; }))
       continue;
@@ -307,17 +301,14 @@ void ActionServer::trajectoryThread()
     auto fpt = convert(fp.time_from_start);
 
     // make sure we have a proper t0 position
-    if (fpt > std::chrono::microseconds(0))
-    {
+    if (fpt > std::chrono::microseconds(0)) {
       LOG_INFO("Trajectory without t0 recieved, inserting t0 at currrent position");
       trajectory.push_back(TrajectoryPoint(q_actual_, qd_actual_, std::chrono::microseconds(0)));
     }
 
-    for (auto const& point : goal->trajectory.points)
-    {
+    for (auto const& point : goal->trajectory.points) {
       std::array<double, 6> pos, vel;
-      for (size_t i = 0; i < 6; i++)
-      {
+      for (size_t i = 0; i < 6; i++) {
         size_t idx = mapping[i];
         pos[idx] = point.positions[i];
         vel[idx] = point.velocities[i];
@@ -326,48 +317,36 @@ void ActionServer::trajectoryThread()
       trajectory.push_back(TrajectoryPoint(pos, vel, t));
     }
 
-    double t =
-        std::chrono::duration_cast<std::chrono::duration<double>>(trajectory[trajectory.size() - 1].time_from_start)
-            .count();
+    double t = std::chrono::duration_cast<std::chrono::duration<double>>(trajectory[trajectory.size() - 1].time_from_start).count();
     LOG_INFO("Executing trajectory with %zu points and duration of %4.3fs", trajectory.size(), t);
 
     Result res;
 
     LOG_INFO("Attempting to start follower %p", &follower_);
-    if (follower_.start())
-    {
+    if (follower_.start()) {
       follower_.current_gh_id = curr_gh_.getGoalID().id;
-
-      if (follower_.execute(trajectory, interrupt_traj_, pause_traj_))
-      {
+      if (follower_.execute(trajectory, interrupt_traj_, pause_traj_)) {
         // interrupted goals must be handled by interrupt trigger
-        if (!interrupt_traj_)
-        {
+        if (!interrupt_traj_) {
           LOG_INFO("Trajectory executed successfully");
           res.error_code = Result::SUCCESSFUL;
           curr_gh_.setSucceeded(res);
-        }
-        else
+        } else {
           LOG_INFO("Trajectory interrupted");
-      }
-      else
-      {
+        }
+      } else {
         LOG_INFO("Trajectory failed");
         res.error_code = -100;
         res.error_string = "Connection to robot was lost";
         curr_gh_.setAborted(res, res.error_string);
       }
-
       follower_.stop();
-    }
-    else
-    {
+    } else {
       LOG_ERROR("Failed to start trajectory follower!");
       res.error_code = -100;
       res.error_string = "Robot connection could not be established";
       curr_gh_.setAborted(res, res.error_string);
     }
-
     has_goal_ = false;
     lk.unlock();
   }
