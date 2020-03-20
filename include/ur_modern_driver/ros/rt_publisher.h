@@ -34,7 +34,7 @@
 using namespace ros;
 using namespace tf;
 
-const std::string JOINTS[] = { "shoulder_base_joint", "shoulder_lift_joint", "shoulder_middle_joint",
+const std::string JOINTS[] = { "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
                                "wrist_1_joint",      "wrist_2_joint",       "wrist_3_joint" };
 // links with origin in the joints configured above.
 const std::string LINKS[] = { "shoulder_link", "upper_arm_link", "forearm_link",
