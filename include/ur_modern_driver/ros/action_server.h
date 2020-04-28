@@ -30,7 +30,7 @@
 #include <mutex>
 #include <set>
 #include <thread>
-#include <std_srvs/Trigger.h>
+#include <ur_msgs/ProgramState.h>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ros/trajectory_follower.h"
@@ -69,7 +69,7 @@ private:
 
   void onGoal(GoalHandle gh);
   void onCancel(GoalHandle gh);
-  bool onPause(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& resp);
+  bool onPause(ur_msgs::ProgramStateRequest& req, ur_msgs::ProgramStateResponse& resp);
 
   bool validate(GoalHandle& gh, Result& res);
   bool validateState(GoalHandle& gh, Result& res);

@@ -35,7 +35,7 @@ ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vec
   , follower_(follower)
   , state_(RobotState::Error)
 {
-  pause_service_ = nh_.advertiseService("/ur_driver/pause_program", &ActionServer::onPause, this);
+  pause_service_ = nh_.advertiseService("/ur_driver/set_program_state", &ActionServer::onPause, this);
 }
 
 void ActionServer::start()
@@ -352,9 +352,19 @@ void ActionServer::trajectoryThread() {
   }
 }
 
-bool ActionServer::onPause(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &resp) {
-  ROS_INFO("Setting pause state %d -> %d", (bool) pause_traj_, (bool) !pause_traj_);
-  pause_traj_ = !pause_traj_;
+bool ActionServer::onPause(ur_msgs::ProgramStateRequest &req, ur_msgs::ProgramStateResponse &resp) {
+  switch (req.state) {
+    case ur_msgs::ProgramStateRequest::PAUSE:
+      ROS_INFO("Setting pause state %d -> %d", (bool) pause_traj_, true);
+      pause_traj_ = true;
+      break;
+    case ur_msgs::ProgramStateRequest::RESUME:
+      ROS_INFO("Setting pause state %d -> %d", (bool) pause_traj_, false);
+      pause_traj_ = false;
+      break;
+    default:
+      ROS_ERROR("Unexpected request state (%d)", int(req.state));
+  }
   resp.success = true;
   return true;
 }
