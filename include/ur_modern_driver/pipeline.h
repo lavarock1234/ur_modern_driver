@@ -157,7 +157,7 @@ private:
       {
         if (!queue_.try_enqueue(std::move(p)))
         {
-          LOG_ERROR_THROTTLE(1.0, "Pipeline producer overflowed! <%s>", name_.c_str());
+          ROS_ERROR_THROTTLE(1.0, "Pipeline producer overflowed! <%s>", name_.c_str());
         }
       }
 
