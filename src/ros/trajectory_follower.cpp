@@ -245,8 +245,11 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
         return false;
 
       Time servoj_time = Clock::now();
+      //std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
       std::this_thread::sleep_for(std::chrono::microseconds(500));
-      t += 0.000500;
+      //t += 0.000500;
+      t += duration_cast<double_seconds>(Clock::now() - servoj_time).count();
+
       if(t > d_s) {
           if (!execute(point.positions, true)) {
               return false;
