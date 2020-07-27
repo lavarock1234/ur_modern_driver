@@ -324,8 +324,12 @@ void ActionServer::trajectoryThread() {
 
     // Modified frame_id parameter pass through
     std::stringstream ss(goal->trajectory.header.frame_id);
-    uint64_t goal_id; double servoj_gain; double servoj_lookahead_time;
-    ss >> goal_id >> servoj_gain >> servoj_lookahead_time;
+    uint64_t goal_id; double sharpness; double servoj_gain; double servoj_lookahead_time;
+    ss >> goal_id >> sharpness;
+    // convex combination between (100, 0.2) -> (500, 0.05)
+    // FIXME configure as rosparam
+    servoj_gain = (1 - sharpness) * 100 + sharpness * 500;
+    servoj_lookahead_time = (1 - sharpness) * 0.2 + sharpness * 0.05;
     LOG_INFO("Received trajectory parameters goal_id: %d, gain: %f, lookahead_time: %f", (int)goal_id, servoj_gain, servoj_lookahead_time);
     LOG_INFO("Attempting to start follower %p", &follower_);
     if (follower_.start(servoj_gain, servoj_lookahead_time)) {
