@@ -60,7 +60,7 @@ private:
 public:
   TrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
 
-  bool start();
+  bool start(double servoj_gain, double servoj_lookahead_time);
   bool execute(std::array<double, 6> &positions);
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused);
   void stop();

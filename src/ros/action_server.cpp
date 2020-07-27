@@ -322,9 +322,14 @@ void ActionServer::trajectoryThread() {
 
     Result res;
 
+    // Modified frame_id parameter pass through
+    std::stringstream ss(goal->trajectory.header.frame_id);
+    uint64_t goal_id; double servoj_gain; double servoj_lookahead_time;
+    ss >> goal_id >> servoj_gain >> servoj_lookahead_time;
+    LOG_INFO("Received trajectory parameters goal_id: %d, gain: %f, lookahead_time: %f", (int)goal_id, servoj_gain, servoj_lookahead_time);
     LOG_INFO("Attempting to start follower %p", &follower_);
-    if (follower_.start()) {
-      follower_.current_gh_id = goal->trajectory.header.frame_id;
+    if (follower_.start(servoj_gain, servoj_lookahead_time)) {
+      follower_.current_gh_id = std::to_string(goal_id);
       if (follower_.execute(trajectory, interrupt_traj_, pause_traj_)) {
         // interrupted goals must be handled by interrupt trigger
         if (!interrupt_traj_) {

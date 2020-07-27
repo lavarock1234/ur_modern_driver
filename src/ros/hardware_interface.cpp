@@ -99,7 +99,8 @@ bool PositionInterface::write()
 
 void PositionInterface::start()
 {
-  follower_.start();
+  //NOTE: We do not offer support right now for ROS control version of driver with servoj parameters
+  follower_.start(100, 0.1);
 }
 
 void PositionInterface::stop()

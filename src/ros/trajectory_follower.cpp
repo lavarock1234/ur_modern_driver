@@ -101,12 +101,11 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   std::string res(POSITION_PROGRAM);
   res.replace(res.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
 
-  std::ostringstream out;
-  out << "t=" << std::fixed << std::setprecision(4) << servoj_time_;
-  if (version_3)
-    out << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
+  if (!version_3) {
+    LOG_ERROR("Failed to run trajectory, version is below 3");
+    std::exit(-1);
+  }
 
-  res.replace(res.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   res.replace(res.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), reverse_ip);
   res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
   program_ = res;
@@ -118,13 +117,19 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   }
 }
 
-bool TrajectoryFollower::start()
+bool TrajectoryFollower::start(double servoj_gain, double servoj_lookahead_time)
 {
   if (running_)
     return true;  // not sure
 
-  LOG_INFO("Uploading trajectory program to robot");
+  LOG_INFO("Uploading trajectory program to robot with servoj gain: %f and lookahead_time: %f", servoj_gain, servoj_lookahead_time);
 
+  // Updating program
+  std::ostringstream out;
+  out << "t=" << std::fixed << std::setprecision(4) << servoj_time_ << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
+  program_.replace(program_.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
+
+  // Upload program
   if (!commander_.uploadProg(program_))
   {
     LOG_ERROR("Program upload failed!");

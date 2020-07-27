@@ -296,7 +296,7 @@ LowBandwidthTrajectoryFollower::LowBandwidthTrajectoryFollower(URCommander &comm
   LOG_INFO("Low Bandwidth Trajectory Follower is initialized!");
 }
 
-bool LowBandwidthTrajectoryFollower::start()
+bool LowBandwidthTrajectoryFollower::start(double servoj_gain, double servoj_lookahead_time)
 {
   LOG_INFO("Starting LowBandwidthTrajectoryFollower");
 
