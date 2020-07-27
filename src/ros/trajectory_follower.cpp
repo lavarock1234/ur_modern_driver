@@ -172,6 +172,14 @@ bool TrajectoryFollower::execute(const std::array<double, 6> &positions, bool ke
 
 double TrajectoryFollower::interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel)
 {
+  if(t < 0) {
+      ROS_INFO_THROTTLE(1.0, "Detected interpolation loop t (%f) < 0", t);
+      return p0_pos;
+  }
+  if(t > T) {
+      ROS_INFO_THROTTLE(1.0, "Detected interpolation loop t (%f) > T (%f)", t, T);
+      return p1_pos;
+  }
   using std::pow;
   double a = p0_pos;
   double b = p0_vel;
