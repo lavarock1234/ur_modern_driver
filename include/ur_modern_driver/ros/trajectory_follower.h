@@ -43,7 +43,7 @@ private:
   URCommander &commander_;
   URServer server_;
 
-  double servoj_time_, servoj_lookahead_time_, servoj_gain_;
+  double servoj_time_;
   std::string program_;
 
   template <typename T>

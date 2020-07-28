@@ -89,12 +89,8 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   , commander_(commander)
   , server_(reverse_port)
   , servoj_time_(0.008)
-  , servoj_lookahead_time_(0.03)
-  , servoj_gain_(300.)
 {
   ros::param::get("~servoj_time", servoj_time_);
-  ros::param::get("~servoj_lookahead_time", servoj_lookahead_time_);
-  ros::param::get("~servoj_gain", servoj_gain_);
 
   status_pub_ = nh_.advertise<ur_msgs::TrajectoryFeedback>("ur_driver/tracking_status", 20);
 
@@ -125,12 +121,13 @@ bool TrajectoryFollower::start(double servoj_gain, double servoj_lookahead_time)
   LOG_INFO("Uploading trajectory program to robot with servoj gain: %f and lookahead_time: %f", servoj_gain, servoj_lookahead_time);
 
   // Updating program
+  std::string updated_program = program_;
   std::ostringstream out;
-  out << "t=" << std::fixed << std::setprecision(4) << servoj_time_ << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
-  program_.replace(program_.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
+  out << "t=" << std::fixed << std::setprecision(4) << servoj_time_ << ", lookahead_time=" << servoj_lookahead_time << ", gain=" << servoj_gain;
+  updated_program.replace(updated_program.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
 
   // Upload program
-  if (!commander_.uploadProg(program_))
+  if (!commander_.uploadProg(updated_program))
   {
     LOG_ERROR("Program upload failed!");
     return false;
