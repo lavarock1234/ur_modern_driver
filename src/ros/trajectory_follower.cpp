@@ -90,7 +90,7 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   , commander_(commander)
   , server_(reverse_port)
   , servoj_time_(0.008)
-  , log_servoj_(false)
+  , log_servoj_(true)
 {
   ros::param::get("~servoj_time", servoj_time_);
 
@@ -262,8 +262,8 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
         return false;
 
       Time servoj_time = Clock::now();
-      //std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
-      std::this_thread::sleep_for(std::chrono::microseconds(500));
+      std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
+      //std::this_thread::sleep_for(std::chrono::microseconds(500));
       //t += 0.000500;
       t += duration_cast<double_seconds>(Clock::now() - servoj_time).count();
 
