@@ -34,14 +34,28 @@ def driverProg():
 	SERVO_RUNNING = 1
 	cmd_servo_state = SERVO_IDLE
 	cmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-	
+  MAX_JOINT_DIFFERENCE = 0.02
+  JOINT_NUM = 6
+
 	def set_servo_setpoint(q):
 		enter_critical
 		cmd_servo_state = SERVO_RUNNING
 		cmd_servo_q = q
 		exit_critical
 	end
-	
+
+  def close_to_current(position):
+      local l_current_position = get_actual_joint_positions()
+      local l_index = 0
+      while l_index < JOINT_NUM:
+          if norm(position[l_index] - l_current_position[l_index]) > MAX_JOINT_DIFFERENCE:
+              return False
+          end
+          l_index = l_index + 1
+      end
+      return True
+  end
+
 	thread servoThread():
 		state = SERVO_IDLE
 		while True:
@@ -74,6 +88,8 @@ def driverProg():
 	  if params_mult[0] > 0:
 		  q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
 		  keepalive = params_mult[7]
+      if not close_to_current(q):
+        textmsg("Found setting q while catching up with MAX_JOINT_DIFFERENCE: ", MAX_JOINT_DIFFERENCE)
 		  set_servo_setpoint(q)
 	  end
   end
