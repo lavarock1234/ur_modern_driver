@@ -20,6 +20,7 @@
 #include <ros/ros.h>
 #include <ur_msgs/TrajectoryFeedback.h>
 #include <cmath>
+#include <fstream>
 
 static const int32_t MULT_JOINTSTATE_ = 1000000;
 static const std::string JOINT_STATE_REPLACE("{{JOINT_STATE_REPLACE}}");
@@ -105,6 +106,7 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   , commander_(commander)
   , server_(reverse_port)
   , servoj_time_(0.008)
+  , log_servoj_(true)
 {
   ros::param::get("~servoj_time", servoj_time_);
 
@@ -142,6 +144,9 @@ bool TrajectoryFollower::start(double servoj_gain, double servoj_lookahead_time)
   out << "t=" << std::fixed << std::setprecision(4) << servoj_time_ << ", lookahead_time=" << servoj_lookahead_time << ", gain=" << servoj_gain;
   updated_program.replace(updated_program.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
 
+  // Clear servoj log
+  servoj_log_.clear();
+
   // Upload program
   if (!commander_.uploadProg(updated_program))
   {
@@ -168,6 +173,8 @@ bool TrajectoryFollower::execute(const std::array<double, 6> &positions, bool ke
 
   //  LOG_INFO("servoj([%f,%f,%f,%f,%f,%f])", positions[0], positions[1], positions[2], positions[3], positions[4],
   //  positions[5]);
+  if(log_servoj_)    
+    servoj_log_.push_back(positions);
 
   last_positions_ = positions;
 
@@ -271,8 +278,8 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
         return false;
 
       Time servoj_time = Clock::now();
-      //std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
-      std::this_thread::sleep_for(std::chrono::microseconds(500));
+      std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
+      //std::this_thread::sleep_for(std::chrono::microseconds(500));
       //t += 0.000500;
       t += duration_cast<double_seconds>(Clock::now() - servoj_time).count();
 
@@ -310,6 +317,20 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
 
 void TrajectoryFollower::stop()
 {
+  if(log_servoj_) {
+    std::string filename = std::string(getenv("HOME")) + "/" + std::to_string(ros::Time::now().toNSec()) + ".servoj";
+    std::ofstream file(filename);
+    if(!file.is_open()) {
+      ROS_ERROR("Unable to open file %s for writing!", filename.c_str());
+    } else {
+      ROS_INFO("Writing servoj commands to: %s", filename.c_str());
+      for(auto&& positions : servoj_log_) {
+        file << positions[0] << " " << positions[1] << " " << positions[2] << " " << positions[3] << " " << positions[4] << " " << positions[5] << "\n";
+      }
+    }
+    file.close();
+  }
+
   if (!running_)
     return;
 
@@ -317,5 +338,6 @@ void TrajectoryFollower::stop()
   // execute(empty, false);
 
   server_.disconnectClient();
+
   running_ = false;
 }

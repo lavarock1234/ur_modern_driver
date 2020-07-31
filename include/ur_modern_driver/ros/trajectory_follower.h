@@ -45,6 +45,8 @@ private:
 
   double servoj_time_;
   std::string program_;
+  bool log_servoj_;
+  std::vector<std::array<double, 6>> servoj_log_;  
 
   template <typename T>
   size_t append(uint8_t *buffer, T &val)
