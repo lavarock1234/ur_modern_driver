@@ -106,7 +106,7 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reve
   , commander_(commander)
   , server_(reverse_port)
   , servoj_time_(0.008)
-  , log_servoj_(true)
+  , log_servoj_(false)
 {
   ros::param::get("~servoj_time", servoj_time_);
 
