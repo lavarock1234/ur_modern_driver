@@ -268,6 +268,8 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
           std::this_thread::sleep_for(std::chrono::milliseconds(250));
         }
       }
+      if (interrupt)
+        break;      
 
       for (size_t j = 0; j < positions.size(); j++) {
           positions[j] =
@@ -303,7 +305,10 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
     idx++;
   }
 
-  if (interrupt) {
+  // Setting keep_alive false breaks URScript loop, comment to revert to previous behavior
+  execute(last_positions_, false);
+
+  if (interrupt) {    
     return true;
   }
 
