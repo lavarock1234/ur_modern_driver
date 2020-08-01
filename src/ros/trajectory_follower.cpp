@@ -35,8 +35,8 @@ def driverProg():
 	SERVO_RUNNING = 1
 	cmd_servo_state = SERVO_IDLE
 	cmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  MAX_JOINT_DIFFERENCE = 0.02
-  JOINT_NUM = 6
+  global MAX_JOINT_DIFFERENCE = 0.02
+  global JOINT_NUM = 6
 
 	def set_servo_setpoint(q):
 		enter_critical
@@ -46,15 +46,28 @@ def driverProg():
 	end
 
   def close_to_current(position):
-      local l_current_position = get_actual_joint_positions()
-      local l_index = 0
-      while l_index < JOINT_NUM:
-          if norm(position[l_index] - l_current_position[l_index]) > MAX_JOINT_DIFFERENCE:
-              return False
-          end
-          l_index = l_index + 1
+    local l_current_position = get_actual_joint_positions()
+    local l_index = 0
+    while l_index < JOINT_NUM:
+      if norm(position[l_index] - l_current_position[l_index]) > MAX_JOINT_DIFFERENCE:
+          return False
       end
-      return True
+      l_index = l_index + 1
+    end
+    return True
+  end
+
+  def get_max_joint_difference(position):
+    local l_current_position = get_actual_joint_positions()
+    local l_index = 0
+    local l_max_joint_difference = 0.0
+    while l_index < JOINT_NUM:
+      if norm(position[l_index] - l_current_position[l_index]) > l_max_joint_difference:
+        l_max_joint_difference = norm(position[l_index] - l_current_position[l_index])
+      end
+      l_index = l_index + 1
+    end
+    return l_max_joint_difference
   end
 
 	thread servoThread():
@@ -82,18 +95,25 @@ def driverProg():
 
   socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}})
 
+  textmsg("Starting bluehill program")
   thread_servo = run servoThread()
   keepalive = 1
+  max_joint_difference = 0.0
   while keepalive > 0:
 	  params_mult = socket_read_binary_integer(6+1)
 	  if params_mult[0] > 0:
 		  q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
 		  keepalive = params_mult[7]
-      if not close_to_current(q):
-        textmsg("Found setting q while catching up with MAX_JOINT_DIFFERENCE: ", MAX_JOINT_DIFFERENCE)
+      if keepalive == 0:
+        break
+      end
+      if get_max_joint_difference(q) > max_joint_difference:
+        max_joint_difference = get_max_joint_difference(q)
+      end
 		  set_servo_setpoint(q)
 	  end
   end
+  textmsg("Found max joint difference: ", max_joint_difference)
   sleep(.1)
   socket_close()
   kill thread_servo
