@@ -107,9 +107,6 @@ def driverProg():
       if keepalive == 0:
         break
       end
-      if get_max_joint_difference(q) > max_joint_difference:
-        max_joint_difference = get_max_joint_difference(q)
-      end
 		  set_servo_setpoint(q)
 	  end
   end
