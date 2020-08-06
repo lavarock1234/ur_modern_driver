@@ -36,6 +36,15 @@ bool RTDETrajectoryFollower::start(double servoj_gain, double servoj_lookahead_t
   if (running_)
     return true;  // not sure
 
+  if (!control_interface_.isConnected()) {
+    bool connected = control_interface_.reconnect();
+    if (!connected) {
+      return false;
+    } else {
+      control_interface_.reuploadScript();
+    }
+  }
+
   current_servoj_gain_ = servoj_gain;
   current_servoj_lookahead_time_ = servoj_lookahead_time;
   LOG_INFO("Running RTDE controller interface with servoj gain: %f and lookahead_time: %f", current_servoj_gain_, current_servoj_lookahead_time_);
