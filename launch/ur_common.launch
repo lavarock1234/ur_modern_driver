@@ -15,6 +15,7 @@
   <arg name="max_payload" />
   <arg name="prefix" default="" />
   <arg name="use_ros_control" default="false"/>
+  <arg name="use_rtde_trajectory_follower" default="false"/>
   <arg name="use_lowbandwidth_trajectory_follower" default="false"/>
   <arg name="time_interval" default="0.008"/>
   <arg name="servoj_time" default="0.008" />
@@ -43,6 +44,7 @@
     <param name="reverse_ip_address" type="str" value="$(arg reverse_ip)" />
     <param name="reverse_port" type="int" value="$(arg reverse_port)" />
     <param name="use_ros_control" type="bool" value="$(arg use_ros_control)"/>
+    <param name="use_rtde_trajectory_follower" type="bool" value="$(arg use_rtde_trajectory_follower)"/>
     <param name="use_lowbandwidth_trajectory_follower" type="bool" value="$(arg use_lowbandwidth_trajectory_follower)"/>
     <param name="min_payload" type="double" value="$(arg min_payload)" />
     <param name="max_payload" type="double" value="$(arg max_payload)" />
