@@ -23,7 +23,7 @@
 RTDETrajectoryFollower::RTDETrajectoryFollower(std::string &robot_ip)
   : running_(false)
   , servoj_time_(0.008)
-  , control_interface_(robot_ip)
+  , control_interface_(robot_ip, 30004, true)
 {
   //ros::param::get("~servoj_time", servoj_time_);
   dt_ = servoj_time_ / 4.0;
@@ -36,14 +36,7 @@ bool RTDETrajectoryFollower::start(double servoj_gain, double servoj_lookahead_t
   if (running_)
     return true;  // not sure
 
-  if (!control_interface_.isConnected()) {
-    bool connected = control_interface_.reconnect();
-    if (!connected) {
-      return false;
-    } else {
-      control_interface_.reuploadScript();
-    }
-  }
+  control_interface_.reuploadScript();
 
   current_servoj_gain_ = servoj_gain;
   current_servoj_lookahead_time_ = servoj_lookahead_time;
@@ -171,10 +164,11 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
 void RTDETrajectoryFollower::stop()
 {
 
-  control_interface_.servoStop();
+  control_interface_.stopScript();
 
   if (!running_)
     return;
+
 
   running_ = false;
 }
