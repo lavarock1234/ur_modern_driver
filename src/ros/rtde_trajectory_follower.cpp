@@ -164,7 +164,7 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
 void RTDETrajectoryFollower::stop()
 {
 
-  control_interface_.stopScript();
+  //control_interface_.stopScript();
 
   if (!running_)
     return;
