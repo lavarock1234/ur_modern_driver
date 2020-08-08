@@ -349,7 +349,9 @@ void ActionServer::trajectoryThread() {
         res.error_string = "Connection to robot was lost";
         curr_gh_.setAborted(res, res.error_string);
       }
+      LOG_INFO("Attempting to stop follower %p", &follower_);
       follower_.stop();
+      LOG_INFO("Follower stopped");
     } else {
       LOG_ERROR("Failed to start trajectory follower!");
       res.error_code = -100;
