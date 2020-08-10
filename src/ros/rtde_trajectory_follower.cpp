@@ -124,17 +124,18 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
             interpolate(t, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
       }
 
-      Time servoj_time = Clock::now();
+      auto t_start = Clock::now();
       if (!execute(positions))
         return false;
-      t += duration_cast<double_seconds>(Clock::now() - servoj_time).count();
+      auto t_stop = Clock::now();
+      auto t_duration = std::chrono::duration<double>(t_stop - t_start);
+      if (t_duration.count() < dt_) {
+        std::this_thread::sleep_for(std::chrono::duration<double>(dt_ - t_duration.count()));
+      }
+      t += duration_cast<double_seconds>(Clock::now() - t_start).count();
 
       if(t > d_s) {
-          if (!execute(from_array(point.positions))) {
-              return false;
-          } else {
-              break;
-          }
+          break;
       }
     }
 
@@ -157,8 +158,7 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
   // the interpolation loop above but rather some position between
   // t[N-1] and t[N] where N is the number of trajectory points.
   // To make sure this does not happen the last position is sent
-  //return execute(last.positions, true);
-  return true;
+  return execute(from_array(last.positions));
 }
 
 void RTDETrajectoryFollower::stop()
