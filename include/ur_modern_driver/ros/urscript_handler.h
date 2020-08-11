@@ -36,12 +36,18 @@ private:
   ros::Subscriber urscript_sub_;
   RobotState state_;
   ur_rtde::RTDEControlInterface* control_interface_ = nullptr;
-
+  std::atomic<bool> control_script_active_; ///< True if control script is active; False otherwise
 public:
   URScriptHandler(URCommander &commander);
   void urscriptInterface(const std_msgs::String::ConstPtr &msg);
   void onRobotStateChange(RobotState state);
   void enableRTDEMode(ur_rtde::RTDEControlInterface* control_interface) {
     control_interface_ = control_interface;
+  }
+  bool isControlScriptActive() const {
+    return control_script_active_;
+  }
+  void setControlScriptActive(bool control_script_active) {
+    control_script_active_ = control_script_active;
   }
 };

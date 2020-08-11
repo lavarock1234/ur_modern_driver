@@ -19,7 +19,7 @@
 #include "ur_modern_driver/ros/urscript_handler.h"
 #include "ur_modern_driver/log.h"
 
-URScriptHandler::URScriptHandler(URCommander& commander) : commander_(commander), state_(RobotState::Error)
+URScriptHandler::URScriptHandler(URCommander& commander) : commander_(commander), state_(RobotState::Error), control_script_active_(true)
 {
   LOG_INFO("Initializing ur_driver/URScript subscriber");
   urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1, &URScriptHandler::urscriptInterface, this);
@@ -38,9 +38,14 @@ void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
     case RobotState::Running:
       if (control_interface_) {
         LOG_INFO("Uploading script in RTDE mode!");
+        if (isControlScriptActive()) {
+          LOG_INFO("Control script active, stopping RTDE control script...");
+          control_interface_->stopScript();
+        }
         if (!control_interface_->sendCustomScript(str)) {
           LOG_ERROR("RTDE Program upload failed!");
         }
+        setControlScriptActive(false);
       } else {
         if (!commander_.uploadProg(str)) {
             LOG_ERROR("Program upload failed!");

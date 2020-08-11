@@ -36,7 +36,15 @@ bool RTDETrajectoryFollower::start(double servoj_gain, double servoj_lookahead_t
   if (running_)
     return true;  // not sure
 
-  control_interface_.reuploadScript();
+  // Upload script only if script is dirty
+  if (script_handler_) {
+    if (!script_handler_->isControlScriptActive()) {
+      control_interface_.reuploadScript();
+      script_handler_->setControlScriptActive(true);
+    }
+  } else {
+    LOG_ERROR("Script handler not set!");
+  }
 
   current_servoj_gain_ = servoj_gain;
   current_servoj_lookahead_time_ = servoj_lookahead_time;

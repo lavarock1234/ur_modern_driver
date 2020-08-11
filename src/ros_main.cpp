@@ -224,7 +224,13 @@ int main(int argc, char **argv)
   URScriptHandler urscript_handler(*rt_commander);
   if (args.use_rtde_trajectory_follower) {
     LOG_INFO("Enabling RTDE mode for URScriptHandler");
-    urscript_handler.enableRTDEMode(dynamic_cast<RTDETrajectoryFollower *>(traj_follower)->get_control_interface());
+    auto rtde_follower = dynamic_cast<RTDETrajectoryFollower *>(traj_follower);
+    if (!rtde_follower) {
+      LOG_FATAL("Unable to cast follower to RTDE follower!");
+      return EXIT_FAILURE;
+    }
+    urscript_handler.enableRTDEMode(rtde_follower->get_control_interface());
+    rtde_follower->set_script_handler(&urscript_handler);
   }
   services.push_back(&urscript_handler);
   if (args.shutdown_on_disconnect)
