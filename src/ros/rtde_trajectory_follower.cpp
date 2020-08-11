@@ -26,7 +26,7 @@ RTDETrajectoryFollower::RTDETrajectoryFollower(std::string &robot_ip)
   , control_interface_(robot_ip, 30004, true)
 {
   //ros::param::get("~servoj_time", servoj_time_);
-  dt_ = servoj_time_ / 4.0;
+  dt_ = servoj_time_ / 8.0;
 
   status_pub_ = nh_.advertise<ur_msgs::TrajectoryFeedback>("ur_driver/tracking_status", 20);
 }
