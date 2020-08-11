@@ -36,9 +36,15 @@ void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
   switch (state_)
   {
     case RobotState::Running:
-      if (!commander_.uploadProg(str))
-      {
-        LOG_ERROR("Program upload failed!");
+      if (control_interface_) {
+        LOG_INFO("Uploading script in RTDE mode!");
+        if (!control_interface_->sendCustomScript(str)) {
+          LOG_ERROR("RTDE Program upload failed!");
+        }
+      } else {
+        if (!commander_.uploadProg(str)) {
+            LOG_ERROR("Program upload failed!");
+        }
       }
       break;
     case RobotState::EmergencyStopped:

@@ -59,6 +59,10 @@ public:
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) override;
   void stop() override;
 
+  inline ur_rtde::RTDEControlInterface* get_control_interface() {
+    return &control_interface_;
+  }
+
   virtual ~RTDETrajectoryFollower(){
     control_interface_.stopScript();
   };

@@ -21,6 +21,8 @@
 #include <ros/ros.h>
 #include <string>
 
+#include <ur_rtde/rtde_control_interface.h>
+
 #include "std_msgs/String.h"
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ros/service_stopper.h"
@@ -33,9 +35,13 @@ private:
   URCommander &commander_;
   ros::Subscriber urscript_sub_;
   RobotState state_;
+  ur_rtde::RTDEControlInterface* control_interface_ = nullptr;
 
 public:
   URScriptHandler(URCommander &commander);
   void urscriptInterface(const std_msgs::String::ConstPtr &msg);
   void onRobotStateChange(RobotState state);
+  void enableRTDEMode(ur_rtde::RTDEControlInterface* control_interface) {
+    control_interface_ = control_interface;
+  }
 };
