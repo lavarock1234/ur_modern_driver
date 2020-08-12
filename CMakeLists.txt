@@ -25,6 +25,7 @@ find_package(catkin REQUIRED
     tf
     trajectory_msgs
     ur_msgs
+    ur_dashboard_msgs
 )
 
 catkin_package(
@@ -43,6 +44,7 @@ catkin_package(
     sensor_msgs
     trajectory_msgs
     ur_msgs
+    ur_dashboard_msgs
 )
 
 
