@@ -92,6 +92,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/trajectory_follower.cpp
     src/ros/tracker.cpp
     src/ros/urscript_handler.cpp
+    src/ros/dashboard_client.cpp
     src/tcp_socket.cpp
     src/ur/commander.cpp
     src/ur/master_board.cpp

@@ -36,6 +36,7 @@
 #include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ros/trajectory_follower.h"
 #include "ur_modern_driver/ros/urscript_handler.h"
+#include "ur_modern_driver/ros/dashboard_client.h"
 #include "ur_modern_driver/ros/tracker.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
@@ -233,6 +234,10 @@ int main(int argc, char **argv)
     rtde_follower->set_script_handler(&urscript_handler);
   }
   services.push_back(&urscript_handler);
+
+  DashboardClient dashboard_client(args.host);
+  services.push_back(&dashboard_client);
+
   if (args.shutdown_on_disconnect)
   {
     LOG_INFO("Notifier: Pipeline disconnect will shutdown the node");
