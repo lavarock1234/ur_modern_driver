@@ -31,6 +31,7 @@
 #include "ur_modern_driver/ros/action_trajectory_follower_interface.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/server.h"
+#include "ur_modern_driver/ros/urscript_handler.h"
 
 class RTDETrajectoryFollower : public ActionTrajectoryFollowerInterface
 {
@@ -50,6 +51,9 @@ private:
   // Control interface
   ur_rtde::RTDEControlInterface control_interface_;
 
+  // Script handler
+  URScriptHandler* script_handler_;
+
 public:
   RTDETrajectoryFollower(std::string &robot_ip);
   typedef std::vector<double> JointAngle;
@@ -58,6 +62,14 @@ public:
   bool start(double servoj_gain, double servoj_lookahead_time) override;
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) override;
   void stop() override;
+
+  inline ur_rtde::RTDEControlInterface* get_control_interface() {
+    return &control_interface_;
+  }
+
+  inline void set_script_handler(URScriptHandler* script_handler) {
+    script_handler_ = script_handler;
+  }
 
   virtual ~RTDETrajectoryFollower(){
     control_interface_.stopScript();

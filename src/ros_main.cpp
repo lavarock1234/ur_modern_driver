@@ -179,6 +179,7 @@ int main(int argc, char **argv)
   INotifier *notifier(nullptr);
   ROSController *controller(nullptr);
   ActionServer *action_server(nullptr);
+  ActionTrajectoryFollowerInterface *traj_follower(nullptr);
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
@@ -192,7 +193,6 @@ int main(int argc, char **argv)
   else
   {
     LOG_INFO("ActionServer enabled");
-    ActionTrajectoryFollowerInterface *traj_follower(nullptr);
     if (args.use_rtde_trajectory_follower)
     {
       if(!factory.isVersion3()) {
@@ -222,6 +222,16 @@ int main(int argc, char **argv)
   services.push_back(&tracker);
 
   URScriptHandler urscript_handler(*rt_commander);
+  if (args.use_rtde_trajectory_follower) {
+    LOG_INFO("Enabling RTDE mode for URScriptHandler");
+    auto rtde_follower = dynamic_cast<RTDETrajectoryFollower *>(traj_follower);
+    if (!rtde_follower) {
+      LOG_FATAL("Unable to cast follower to RTDE follower!");
+      return EXIT_FAILURE;
+    }
+    urscript_handler.enableRTDEMode(rtde_follower->get_control_interface());
+    rtde_follower->set_script_handler(&urscript_handler);
+  }
   services.push_back(&urscript_handler);
   if (args.shutdown_on_disconnect)
   {
