@@ -35,7 +35,7 @@ private:
   ros::NodeHandle nh_;
   std::shared_ptr<ur_rtde::DashboardClient> db_client_;
 
-  ros::ServiceServer mode_service_, close_safety_popup_service_, power_on_service_, break_release_service_, power_off_service_;
+  ros::ServiceServer mode_service_, close_safety_popup_service_, power_on_service_, brake_release_service_, power_off_service_;
 
   RobotState state_;
 public:
@@ -44,11 +44,11 @@ public:
     db_client_ = std::make_shared<ur_rtde::DashboardClient>(host_ip);
     db_client_->connect();
 
-    mode_service_ = nh_.advertiseService("/ur_driver/get_robot_mode", &DashboardClient::mode_svc, this);
-    close_safety_popup_service_ = nh_.advertiseService("/ur_driver/close_safety_popup", &DashboardClient::close_safety_popup_svc, this);
-    power_on_service_ = nh_.advertiseService("/ur_driver/power_on", &DashboardClient::power_on_svc, this);
-    break_release_service_ = nh_.advertiseService("/ur_driver/break_release", &DashboardClient::break_release_svc, this);
-    power_off_service_ = nh_.advertiseService("/ur_driver/power_off", &DashboardClient::power_off_svc, this);
+    mode_service_ = nh_.advertiseService("/ur_driver/dashboard/get_robot_mode", &DashboardClient::mode_svc, this);
+    close_safety_popup_service_ = nh_.advertiseService("/ur_driver/dashboard/close_safety_popup", &DashboardClient::close_safety_popup_svc, this);
+    power_on_service_ = nh_.advertiseService("/ur_driver/dashboard/power_on", &DashboardClient::power_on_svc, this);
+    brake_release_service_ = nh_.advertiseService("/ur_driver/dashboard/brake_release", &DashboardClient::brake_release_svc, this);
+    power_off_service_ = nh_.advertiseService("/ur_driver/dashboard/power_off", &DashboardClient::power_off_svc, this);
   }
   void onRobotStateChange(RobotState state);
 
@@ -100,7 +100,7 @@ public:
     return true;
   }
 
-  bool break_release_svc(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& resp) {
+  bool brake_release_svc(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& resp) {
     db_client_->brakeRelease();
     resp.success = true;
     return true;
