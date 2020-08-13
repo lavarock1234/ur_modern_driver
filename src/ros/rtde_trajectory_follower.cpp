@@ -93,6 +93,7 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
   JointAngle positions(6);
 
   uint32_t idx = 0;
+  std::chrono::microseconds t(0);
   for (auto const &point : trajectory)
   {
     // skip t0
@@ -110,13 +111,8 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
       }
     }
 
-    auto duration = point.time_from_start - prev.time_from_start;
-    double d_s = duration_cast<double_seconds>(duration).count();
-
-    // interpolation loop
-    double t = 0;
-    while (!interrupt)
-    {
+    double d_s = duration_cast<double_seconds>(point.time_from_start - prev.time_from_start).count();    
+    while (t <= point.time_from_start) {
       while (paused) {
         if (interrupt) {
           break;
@@ -125,14 +121,14 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
         }
       }
       if (interrupt)
-        break;      
-
-      for (size_t j = 0; j < positions.size(); j++) {
-          positions[j] =
-            interpolate(t, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
-      }
+        break;
 
       auto t_start = Clock::now();
+      double d_t = duration_cast<double_seconds>(t - prev.time_from_start).count();
+      for (size_t j = 0; j < positions.size(); j++) {
+          positions[j] =
+            interpolate(d_t, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
+      }
       if (!execute(positions))
         return false;
       auto t_stop = Clock::now();
@@ -140,11 +136,8 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
       if (t_duration.count() < dt_) {
         std::this_thread::sleep_for(std::chrono::duration<double>(dt_ - t_duration.count()));
       }
-      t += duration_cast<double_seconds>(Clock::now() - t_start).count();
-
-      if(t > d_s) {
-          break;
-      }
+      t += duration_cast<microseconds>(Clock::now() - t_start);
+      //std::cout << "tfs = " << point.time_from_start.count() * 1e-6 << " dt = " << d_t << " Current t = " << t.count() * 1e-6 << "\n";
     }
 
     prev = point;
