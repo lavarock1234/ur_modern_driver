@@ -25,6 +25,7 @@ find_package(catkin REQUIRED
     tf
     trajectory_msgs
     ur_msgs
+    ur_dashboard_msgs
 )
 
 catkin_package(
@@ -43,6 +44,7 @@ catkin_package(
     sensor_msgs
     trajectory_msgs
     ur_msgs
+    ur_dashboard_msgs
 )
 
 
@@ -90,6 +92,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/trajectory_follower.cpp
     src/ros/tracker.cpp
     src/ros/urscript_handler.cpp
+    src/ros/dashboard_client.cpp
     src/tcp_socket.cpp
     src/ur/commander.cpp
     src/ur/master_board.cpp
