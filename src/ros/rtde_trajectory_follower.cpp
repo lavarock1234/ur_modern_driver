@@ -94,6 +94,7 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
 
   uint32_t idx = 0;
   std::chrono::microseconds t(0);
+  auto t_begin = Clock::now();
   for (auto const &point : trajectory)
   {
     // skip t0
@@ -154,6 +155,11 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
   if (interrupt) {    
     return true;
   }
+
+  // Show timing
+  auto desired = duration_cast<double_seconds>(last.time_from_start).count();
+  auto total= duration_cast<double_seconds>(Clock::now() - t_begin).count();
+  LOG_INFO("Action timing: desired: %f [s], completed: %f [s], delayed: %f%%",  desired, total, 100.0 * (total - desired) / desired);
 
   // In theory it's possible the last position won't be sent by
   // the interpolation loop above but rather some position between
