@@ -38,7 +38,7 @@ private:
 
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& resp)
   {
-    LOG_INFO("setIO called with [%d, %d]", req.fun, req.pin);
+    LOG_INFO("setIO called with [%d, %d] -> %g with latency: %f [ms]", req.fun, req.pin, req.state, std::round((ros::Time::now() - req.stamp).toSec() * 1000));
     bool res = false;
     bool flag = req.state > 0.0 ? true : false;
     switch (req.fun)
