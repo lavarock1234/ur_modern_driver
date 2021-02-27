@@ -74,6 +74,81 @@ bool RTDETrajectoryFollower::execute(const JointAngle &positions) {
   return control_interface_.servoJ(positions, 0, 0, dt_, current_servoj_lookahead_time_, current_servoj_gain_);
 }
 
+bool RTDETrajectoryFollower::execute_moveJ(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) {
+  if (!running_)
+    return false;
+
+  using namespace std::chrono;
+  typedef duration<double> double_seconds;
+  typedef high_resolution_clock Clock;
+  typedef Clock::time_point Time;
+
+  auto &last = trajectory[trajectory.size() - 1];
+  auto &prev = trajectory[0];
+
+  Time t0 = Clock::now();
+  Time latest = t0;
+
+  JointAngle positions(6);
+
+  uint32_t idx = 0;
+  std::chrono::microseconds t(0);
+  auto t_begin = Clock::now();
+  for (auto const &point : trajectory)
+  {
+    // skip t0
+    if (&point == &prev)
+      continue;
+
+    if (interrupt)
+      break;
+
+    while (paused) {
+      if (interrupt) {
+        break;
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      }
+    }
+
+    // Calculate an estimate of speed
+    double speed = -1;
+    if (&point == &last) {
+      speed = 0;
+    } else {
+      double d_s = duration_cast<double_seconds>(point.time_from_start - prev.time_from_start).count();
+      // compute lead axis speed rad/s
+      for (unsigned i = 0; i < point.positions.size(); i++)
+      {
+        if(std::abs(point.positions[i] - prev.positions[i]) / d_s > speed) {
+          speed = std::abs(point.positions[i] - prev.positions[i]) / d_s;
+        }
+      }
+    }
+    LOG_INFO("SENDING [moveJ] cmd with speed: %f [rad/s]", speed);
+    control_interface_.moveJ(from_array(point.positions), speed);
+    prev = point;
+
+    // Update current tracking status
+    ur_msgs::TrajectoryFeedback status_msg;
+    status_msg.header.stamp = ros::Time::now();
+    status_msg.current_idx = idx;
+    status_msg.goal_id = current_gh_id;
+    status_pub_.publish(status_msg);
+    idx++;
+  }
+
+  if (interrupt) {
+    return true;
+  }
+
+  // Show timing
+  auto desired = duration_cast<double_seconds>(last.time_from_start).count();
+  auto total= duration_cast<double_seconds>(Clock::now() - t_begin).count();
+  LOG_INFO("Action timing [moveJ]: desired: %f [s], completed: %f [s], delayed: %f%%",  desired, total, 100.0 * (total - desired) / desired);
+  return true;
+}
+
 bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused)
 {
   if (!running_)

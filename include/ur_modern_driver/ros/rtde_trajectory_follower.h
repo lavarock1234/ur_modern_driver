@@ -61,6 +61,7 @@ public:
   bool execute(const JointAngle &positions);
   bool start(double servoj_gain, double servoj_lookahead_time) override;
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) override;
+  bool execute_moveJ(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) override;
   void stop() override;
 
   inline ur_rtde::RTDEControlInterface* get_control_interface() {

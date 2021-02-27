@@ -302,7 +302,7 @@ void ActionServer::trajectoryThread() {
 
     // make sure we have a proper t0 position
     if (fpt > std::chrono::microseconds(0)) {
-      LOG_INFO("Trajectory without t0 recieved, inserting t0 at currrent position");
+      LOG_INFO("Trajectory without t0 recieved, inserting t0 at current position");
       trajectory.push_back(TrajectoryPoint(q_actual_, qd_actual_, std::chrono::microseconds(0)));
     }
 
@@ -324,17 +324,20 @@ void ActionServer::trajectoryThread() {
 
     // Modified frame_id parameter pass through
     std::stringstream ss(goal->trajectory.header.frame_id);
-    uint64_t goal_id; double sharpness; double servoj_gain; double servoj_lookahead_time;
-    ss >> goal_id >> sharpness;
+    std::string move_type; uint64_t goal_id; double sharpness; double servoj_gain; double servoj_lookahead_time;
+    ss >> goal_id >> sharpness >> move_type;
     // convex combination between (100, 0.2) -> (500, 0.05)
     // FIXME configure as rosparam
     servoj_gain = (1 - sharpness) * 100 + sharpness * 500;
     servoj_lookahead_time = (1 - sharpness) * 0.2 + sharpness * 0.05;
     LOG_INFO("Received trajectory parameters goal_id: %d, gain: %f, lookahead_time: %f", (int)goal_id, servoj_gain, servoj_lookahead_time);
-    LOG_INFO("Attempting to start follower %p", &follower_);
+    LOG_INFO("Attempting to start follower %p, move_type: %s", &follower_, move_type.c_str());
     if (follower_.start(servoj_gain, servoj_lookahead_time)) {
       follower_.current_gh_id = std::to_string(goal_id);
-      if (follower_.execute(trajectory, interrupt_traj_, pause_traj_)) {
+      if (move_type == "moveJ" ?
+          follower_.execute_moveJ(trajectory, interrupt_traj_, pause_traj_) :
+          follower_.execute(trajectory, interrupt_traj_, pause_traj_)
+          ) {
         // interrupted goals must be handled by interrupt trigger
         if (!interrupt_traj_) {
           LOG_INFO("Trajectory executed successfully");
