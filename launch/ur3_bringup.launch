@@ -16,6 +16,7 @@
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="3.0"/>
   <arg name="prefix" default="" />
+  <arg name="use_rtde_trajectory_follower" default="false"/>
   <arg name="use_lowbandwidth_trajectory_follower" default="false"/>
   <arg name="time_interval" default="0.008"/>
   <arg name="servoj_time" default="0.008" />
@@ -40,6 +41,7 @@
     <arg name="min_payload"  value="$(arg min_payload)"/>
     <arg name="max_payload"  value="$(arg max_payload)"/>
     <arg name="prefix" value="$(arg prefix)" />
+    <arg name="use_rtde_trajectory_follower" value="$(arg use_rtde_trajectory_follower)"/>
     <arg name="use_lowbandwidth_trajectory_follower" value="$(arg use_lowbandwidth_trajectory_follower)"/>
     <arg name="time_interval" value="$(arg time_interval)"/>
     <arg name="servoj_time" value="$(arg servoj_time)" />
