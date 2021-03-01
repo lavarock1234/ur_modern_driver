@@ -113,16 +113,12 @@ bool RTDETrajectoryFollower::execute_moveJ(std::vector<TrajectoryPoint> &traject
 
     // Calculate an estimate of speed
     double speed = -1;
-    if (&point == &last) {
-      speed = 0;
-    } else {
-      double d_s = duration_cast<double_seconds>(point.time_from_start - prev.time_from_start).count();
-      // compute lead axis speed rad/s
-      for (unsigned i = 0; i < point.positions.size(); i++)
-      {
-        if(std::abs(point.positions[i] - prev.positions[i]) / d_s > speed) {
-          speed = std::abs(point.positions[i] - prev.positions[i]) / d_s;
-        }
+    double d_s = duration_cast<double_seconds>(point.time_from_start - prev.time_from_start).count();
+    // compute lead axis speed rad/s
+    for (unsigned i = 0; i < point.positions.size(); i++)
+    {
+      if(std::abs(point.positions[i] - prev.positions[i]) / d_s > speed) {
+        speed = std::abs(point.positions[i] - prev.positions[i]) / d_s;
       }
     }
     LOG_INFO("SENDING [moveJ] cmd with speed: %f [rad/s]", speed);
