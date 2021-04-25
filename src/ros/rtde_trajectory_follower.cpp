@@ -236,7 +236,11 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
   // the interpolation loop above but rather some position between
   // t[N-1] and t[N] where N is the number of trajectory points.
   // To make sure this does not happen the last position is sent
-  return execute(from_array(last.positions));
+  if(!execute(from_array(last.positions))) {
+    return false;
+  }
+  std::this_thread::sleep_for(std::chrono::duration<double>(0.6));
+  return true;
 }
 
 void RTDETrajectoryFollower::stop()
