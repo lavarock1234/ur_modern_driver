@@ -329,7 +329,7 @@ void ActionServer::trajectoryThread() {
     bool moveJ = false;
     if (sharpness < 0)
     {
-      moveJ = true;
+      //moveJ = true;
       sharpness = 0;
     }
     // convex combination between (100, 0.2) -> (500, 0.05)
