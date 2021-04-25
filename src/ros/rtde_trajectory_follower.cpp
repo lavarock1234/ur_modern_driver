@@ -197,8 +197,10 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
 
       auto t_start = Clock::now();
       double d_t = duration_cast<double_seconds>(t - prev.time_from_start).count();
-      //double d_t_s = std::min(2.0*(std::sin(d_t/d_s*M_PI/2 - M_PI/6)+0.5) * d_s/(1+std::sqrt(2)), d_s);
-      double d_t_s = (std::sin(d_t/d_s*M_PI/3 - M_PI/6)+0.5) * d_s;
+      double d_t_s = (std::sin(2*d_t/d_s*M_PI/3 - M_PI/3) + std::sqrt(3)/2) / std::sqrt(3) * d_s;
+      if (&point == &last) {
+          d_t_s = std::min(d_t_s * 1.2, d_s);
+      }
       for (size_t j = 0; j < positions.size(); j++) {
           positions[j] =
             interpolate(d_t_s, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
@@ -241,7 +243,7 @@ bool RTDETrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
   if(!execute(from_array(last.positions))) {
     return false;
   }
-  std::this_thread::sleep_for(std::chrono::duration<double>(0.6));
+  std::this_thread::sleep_for(std::chrono::duration<double>(0.1));
   return true;
 }
 
