@@ -63,6 +63,7 @@ public:
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) override;
   bool execute_moveJ(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt, std::atomic<bool> &paused) override;
   void stop() override;
+  bool servo_stop() override;
 
   inline ur_rtde::RTDEControlInterface* get_control_interface() {
     return &control_interface_;
